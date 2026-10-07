@@ -1,396 +1,47 @@
-# DAMN VULNERABLE WEB APPLICATION
+# Damn Vulnerable Web Application (DevSecOps & Mitigation Fork)
+
+> **⚠️ ACADEMIC PROJECT NOTICE:** This repository is a fork of the original DVWA. It was explicitly created as part of a final academic project (TFG) to demonstrate **secure code refactoring** and the implementation of a **DevSecOps CI/CD pipeline**.
+> 
+> The original vulnerable code has been patched, and automated security controls have been added to prevent deployment if vulnerabilities are found.
+
+## 🛡️ Key Implementations (What was changed in this fork)
+
+As detailed in my comprehensive SecOps Infrastructure Lab project, the following improvements were implemented to secure this application:
+
+### 1. Automated DevSecOps Pipeline (GitHub Actions)
+A strict CI/CD workflow (`pipeline-seguridad.yml`) was configured to enforce security checks before any deployment:
+- **Secret Detection:** Scans for hardcoded credentials using Gitleaks.
+- **Static Application Security Testing (SAST):** Automated PHP code analysis using Semgrep to catch injection flaws.
+- **Software Composition Analysis (SCA):** Scans infrastructure and dependencies using Trivy and OWASP Dependency-Check.
+- **Dynamic Application Security Testing (DAST):** Automated runtime evaluation using OWASP ZAP.
+
+### 2. Vulnerability Mitigation & Code Refactoring
+The intentionally vulnerable PHP source code was refactored to eliminate critical security flaws:
+- **Command Injection:** Mitigated by implementing the `escapeshellcmd()` function to block the execution of special characters.
+- **SQL Injection (SQLi):** Fixed by enforcing strict data-type casting using the `intval()` function, preventing malicious payloads from bypassing database filters.
+- **Cross-Site Scripting (XSS):** Reflected and Stored XSS flaws were neutralized by encoding HTML output using `htmlspecialchars()`.
+
+### 3. Server-Side Hardening (HTTP Headers)
+The underlying web server configuration was updated to enforce security directives:
+- `X-Frame-Options: SAMEORIGIN` (Clickjacking prevention).
+- `X-Content-Type-Options: nosniff` (MIME-sniffing prevention).
+- `Content-Security-Policy` (Restricting resource loading to origin).
+
+---
+*The text below is the original DVWA README for reference purposes.*
+---
+
+## About Damn Vulnerable Web Application (Original)
 
 Damn Vulnerable Web Application (DVWA) is a PHP/MariaDB web application that is damn vulnerable. Its main goal is to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and to aid both students & teachers to learn about web application security in a controlled class room environment.
 
 The aim of DVWA is to **practice some of the most common web vulnerabilities**, with **various levels of difficulty**, with a simple straightforward interface.
-Please note, there are **both documented and undocumented vulnerabilities** with this software. This is intentional. You are encouraged to try and discover as many issues as possible.
-- - -
 
-## WARNING!
+### WARNING!
+Damn Vulnerable Web Application is damn vulnerable! **Do not upload it to your hosting provider's public html folder or any Internet facing servers**, as they will be compromised. It is recommended using a virtual machine (such as VirtualBox or VMware), which is set to NAT networking mode. 
 
-Damn Vulnerable Web Application is damn vulnerable! **Do not upload it to your hosting provider's public html folder or any Internet facing servers**, as they will be compromised. It is recommended using a virtual machine (such as [VirtualBox](https://www.virtualbox.org/) or [VMware](https://www.vmware.com/)), which is set to NAT networking mode. Inside a guest machine, you can download and install [XAMPP](https://www.apachefriends.org/) for the web server and database.
-
-### Disclaimer
-
-We do not take responsibility for the way in which any one uses this application (DVWA). We have made the purposes of the application clear and it should not be used maliciously. We have given warnings and taken measures to prevent users from installing DVWA on to live web servers. If your web server is compromised via an installation of DVWA, it is not our responsibility, it is the responsibility of the person/s who uploaded and installed it.
-
-- - -
-
-## License
-
-This file is part of Damn Vulnerable Web Application (DVWA).
-
-Damn Vulnerable Web Application (DVWA) is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Damn Vulnerable Web Application (DVWA) is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Damn Vulnerable Web Application (DVWA).  If not, see <https://www.gnu.org/licenses/>.
-
-- - -
-
-## Internationalisation
-
-This file is available in multiple languages:
-
-- Arabic: [العربية](README.ar.md)
-- Chinese: [简体中文](README.zh.md)
-- French: [Français](README.fr.md)
-- Korean: [한국어](README.ko.md)
-- Persian: [فارسی](README.fa.md)
-- Polish: [Polski](README.pl.md)
-- Portuguese: [Português](README.pt.md)
-- Spanish: [Español](README.es.md)
-- Turkish: [Türkçe](README.tr.md)
-- Indonesia: [Indonesia](README.id.md)
-- Vietnamese: [Vietnamese](README.vi.md)
-- Italian: [Italiano](README.it.md)
-- Ukrainian: [Українська](README.uk.md)
-- Russian: [Русский](README.ru.md)
-
-If you would like to contribute a translation, please submit a PR. Note though, this does not mean just run it through Google Translate and send that in, those will be rejected. Submit your translated version by adding a new 'README.xx.md' file where xx is the two-letter code of your desired language (based on [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)).
-
-- - -
-
-## Download
-
-While there are various versions of DVWA around, the only supported version is the latest source from the official GitHub repository. You can either clone it from the repo:
-
-```sh
-git clone https://github.com/digininja/DVWA.git
-```
-
-Or [download a ZIP of the files](https://github.com/digininja/DVWA/archive/master.zip).
-
-- - -
-
-## Installation
-
-### Automated Installation 🛠️
-
-**Note, this is not an official DVWA script, it was written by [@IamCarron](https://github.com/IamCarron) and is maintained at [DVWA-Script](https://github.com/IamCarron/DVWA-Script). A lot of work went into creating the script and, when it was created, it did not do anything malicious, however it is recommended you review the script before blindly running it on your system, just in case. Please report any bugs to the [DVWA-Script repository](https://github.com/IamCarron/DVWA-Script), not here.**
-
-An automated installation script for DVWA on Debian-based machines, including Kali, Ubuntu, Kubuntu, Linux Mint, Zorin OS... It automatically installs dependencies, configures PHP/Apache, and initializes the database tables ready for login (`admin` / `password`).
-
-**Note: This script requires root privileges and is tailored for Debian-based systems. Ensure you are running it as the root user.**
-
-#### Installation Requirements
-
-- **Operating System:** Debian-based system (Kali, Ubuntu, Kubuntu, Linux Mint, Zorin OS)
-- **Privileges:** Execute as root user
-
-#### Installation Steps
-
-##### One-Liner
-
-This will download an install script written by [@IamCarron](https://github.com/IamCarron) and run it automatically. This would not be included here if we did not trust the author and the script as it was when we reviewed it, but there is always the chance of someone going rogue, and so if you don't feel safe running someone else's code without reviewing it yourself, follow the manual process and you can review it once downloaded.
-
-```sh
-sudo bash -c "$(curl --fail --show-error --silent --location https://raw.githubusercontent.com/IamCarron/DVWA-Script/main/Install-DVWA.sh)"
-```
-
-##### Manually Running the Script
-
-1. **Download the script:**
-
-   ```sh
-   wget https://raw.githubusercontent.com/IamCarron/DVWA-Script/main/Install-DVWA.sh
-   ```
-
-2. **Make the script executable:**
-
-   ```sh
-   chmod +x Install-DVWA.sh
-   ```
-
-3. **Run the script as root:**
-
-   ```sh
-   sudo ./Install-DVWA.sh
-   ```
-
-### Installation Videos
-
-- [Installing DVWA on Kali running in VirtualBox](https://www.youtube.com/watch?v=WkyDxNJkgQ4)
-- [Installing DVWA on Windows using XAMPP](https://youtu.be/Yzksa_WjnY0)
-- [Installing Damn Vulnerable Web Application (DVWA) on Windows 10](https://www.youtube.com/watch?v=cak2lQvBRAo)
-
-### Windows + XAMPP
-
-The easiest way to install DVWA is to download and install [XAMPP](https://www.apachefriends.org/) if you do not already have a web server setup.
-
-XAMPP is a very easy to install Apache Distribution for Linux, Solaris, Windows and Mac OS X. The package includes the Apache web server, MySQL, PHP, Perl, a FTP server and phpMyAdmin.
-
-This [video](https://youtu.be/Yzksa_WjnY0) walks you through the installation process for Windows but it should be similar for other OSs.
-
-### Docker
-
-Thanks to [hoang-himself](https://github.com/hoang-himself) and [JGillam](https://github.com/JGillam), every commit to the `master` branch causes a Docker image to be built and ready to be pulled down from GitHub Container Registry.
-
-For more information on what you are getting, you can browse [the prebuilt Docker images](https://github.com/digininja/DVWA/pkgs/container/dvwa).
-
-#### Getting Started
-
-Prerequisites: Docker and Docker Compose.
-
-- If you are using Docker Desktop, both of these should be already installed.
-- If you prefer Docker Engine on Linux, make sure to follow their [installation guide](https://docs.docker.com/engine/install/#server).
-
-**We provide support for the latest Docker release as shown above.**
-If you are using Linux and the Docker package that came with your package manager, it will probably work too, but support will only be best-effort.
-
-Upgrading Docker from the package manager version to upstream requires that you uninstall the old versions as seen in their manuals for [Ubuntu](https://docs.docker.com/engine/install/ubuntu/#uninstall-old-versions), [Fedora](https://docs.docker.com/engine/install/fedora/#uninstall-old-versions) and others.
-Your Docker data (containers, images, volumes, etc.) should not be affected, but in case you do run into a problem, make sure to [tell Docker](https://www.docker.com/support) and use search engines in the mean time.
-
-Then, to get started:
-
-1. Run `docker version` and `docker compose version` to see if you have Docker and Docker Compose properly installed. You should be able to see their versions in the output.
-
-    For example:
-
-    ```text
-    >>> docker version
-    Client:
-     [...]
-     Version:           23.0.5
-     [...]
-
-    Server: Docker Desktop 4.19.0 (106363)
-     Engine:
-      [...]
-      Version:          23.0.5
-      [...]
-
-    >>> docker compose version
-    Docker Compose version v2.17.3
-    ```
-
-    If you don't see anything or get a command not found error, follow the prerequisites to setup Docker and Docker Compose.
-
-2. Clone or download this repository and extract (see [Download](#download)).
-3. Open a terminal of your choice and change its working directory into this folder (`DVWA`).
-4. Run `docker compose up -d`.
-
-DVWA is now available at `http://localhost:4280`.
-
-**Notice that for running DVWA in containers, the web server is listening on port 4280 instead of the usual port of 80.**
-For more information on this decision, see [I want to run DVWA on a different port](#i-want-to-run-dvwa-on-a-different-port).
-
-#### Local Build
-
-If you made local changes and want to build the project from local, go to `compose.yml` and change `pull_policy: always` to `pull_policy: build`.
-
-Running `docker compose up -d` should trigger Docker to build an image from local regardless of what is available in the registry.
-
-See also: [`pull_policy`](https://github.com/compose-spec/compose-spec/blob/master/05-services.md#pull_policy).
-
-#### Serve local files
-
-If your making local changes and don't want to build the project for every change :
-1. Go to `compose.yml` and uncomment :
-    ```
-        # volumes:
-        #   - ./:/var/www/html
-    ```
-2. Run `cp config/config.inc.php.dist config/config.inc.php` to copy the default config file.
-3. Run `docker compose up -d` and changes to local files will reflect on the container.
-
-### PHP Versions
-
-Ideally you should be using the latest stable version of PHP as that is the version that this app will be developed and tested on.
-
-Support will not be given for anyone trying to use PHP 5.x.
-
-Versions less than 7.3 have known issues that will cause problems, most of the app will work, but random things may not. Unless you have a very good reason for using such an old version, support will not be given.
-
-### Linux Packages
-
-If you are using a Debian based Linux distribution, you will need to install the following packages _(or their equivalent)_:
-
-- apache2
-- libapache2-mod-php
-- mariadb-server
-- mariadb-client
-- php php-mysqli
-- php-gd
-
-I would recommend doing an update before this, just so you make sure you are going to get the latest version of everything.
-
-```sh
-apt update
-apt install -y apache2 mariadb-server mariadb-client php php-mysqli php-gd libapache2-mod-php
-```
-
-The site will work with MySQL instead of MariaDB but we strongly recommend MariaDB as it works out of the box whereas you have to make changes to get MySQL to work correctly.
-
-### Apache Modules
-
-If you want to use the API lab you must have the Apache module `mod_rewrite` enabled. To do this in Linux run:
-
-```
-a2enmod rewrite
-```
-
-And then restart Apache with:
-
-```
-apachectl restart
-```
-
-### Vendor Files
-
-If you want to use the API module you will need to install a set of vendor files using [Composer](https://getcomposer.org/).
-
-First, make sure you have Composer installed. There seem to be backward compatibility issues so I always get the latest version from here:
-
-https://getcomposer.org/doc/00-intro.md
-
-Follow the instructions the site gives to get it installed.
-
-Now go into the `vulnerabilities/api` directory and run:
-
-```
-composer.phar install
-```
-
-If you did not install Composer to the system path, make sure you reference its full location.
-
-## Configurations
-
-### Config File
-
-DVWA ships with a dummy copy of its config file which you will need to copy into place and then make the appropriate changes. On Linux, assuming you are in the DVWA directory, this can be done as follows:
-
-`cp config/config.inc.php.dist config/config.inc.php`
-
-On Windows, this can be a bit harder if you are hiding file extensions, if you are unsure about this, this blog post explains more about it:
-
-[How to Make Windows Show File Extensions](https://www.howtogeek.com/205086/beginner-how-to-make-windows-show-file-extensions/)
-
-### Config with environment variables
-
-Instead of modifying the configuration file, you can also set most settings using environment variables. In a Docker or Kubernetes deployment, this allows you to modify the configuration without creating a new Docker image. You'll find the variables in the [config/config.inc.php.dist](config/config.inc.php.dist) file.
-
-If you want to set the default security level to "low", simply add the following line to the [compose.yml](./compose.yml) file:
-
-```yml
-environment:
-  - DB_SERVER=db
-  - DEFAULT_SECURITY_LEVEL=low
-```
-
-### Database Setup
-
-To set up the database, simply click on the `Setup DVWA` button in the main menu, then click on the `Create / Reset Database` button. This will create / reset the database for you with some data in.
-
-If you receive an error while trying to create your database, make sure your database credentials are correct within `./config/config.inc.php`. _This differs from config.inc.php.dist, which is an example file._
-
-The variables are set to the following by default:
-
-```php
-$_DVWA[ 'db_server'] = '127.0.0.1';
-$_DVWA[ 'db_port'] = '3306';
-$_DVWA[ 'db_user' ] = 'dvwa';
-$_DVWA[ 'db_password' ] = 'p@ssw0rd';
-$_DVWA[ 'db_database' ] = 'dvwa';
-```
-
-Note, if you are using MariaDB rather than MySQL (MariaDB is default in Kali), then you can't use the database root user, you must create a new database user. To do this, connect to the database as the root user then use the following commands:
-
-```mariadb
-MariaDB [(none)]> create database dvwa;
-Query OK, 1 row affected (0.00 sec)
-
-MariaDB [(none)]> create user dvwa@localhost identified by 'p@ssw0rd';
-Query OK, 0 rows affected (0.01 sec)
-
-MariaDB [(none)]> grant all on dvwa.* to dvwa@localhost;
-Query OK, 0 rows affected (0.01 sec)
-
-MariaDB [(none)]> flush privileges;
-Query OK, 0 rows affected (0.00 sec)
-```
-
-### Disable Authentication
-
-Some tools don't work well with authentication so can't be used with DVWA. To get around this, there is a config option to disable authentication checking. To do this, simply set the following in the config file:
-
-```php
-$_DVWA[ 'disable_authentication' ] = true;
-```
-
-You will also need to set the security level to one that is appropriate to the testing you want to do:
-
-```php
-$_DVWA[ 'default_security_level' ] = 'low';
-```
-
-In this state, you can access all the features without needing to log in and set any cookies.
-
-### Folder Permissions
-
-- `./hackable/uploads/` - Needs to be writeable by the web service (for File Upload).
-
-### PHP Configuration
-
-On Linux systems, likely found in `/etc/php/x.x/fpm/php.ini` or `/etc/php/x.x/apache2/php.ini`.
-
-- To allow  Remote File Inclusions (RFI):
-  - `allow_url_include = on` [[allow_url_include](https://secure.php.net/manual/en/filesystem.configuration.php#ini.allow-url-include)]
-  - `allow_url_fopen = on` [[allow_url_fopen](https://secure.php.net/manual/en/filesystem.configuration.php#ini.allow-url-fopen)]
-
-- To make sure PHP shows all error messages:
-  - `display_errors = on` [[display_errors](https://secure.php.net/manual/en/errorfunc.configuration.php#ini.display-errors)]
-  - `display_startup_errors = on` [[display_startup_errors](https://secure.php.net/manual/en/errorfunc.configuration.php#ini.display-startup-errors)]
-
-Make sure you restart the php service or Apache after making the changes.
-
-### reCAPTCHA
-
-This is only required for the "Insecure CAPTCHA" lab, if you aren't playing with that lab, you can ignore this section.
-
-Generated a pair of API keys from <https://www.google.com/recaptcha/admin/create>.
-
-These then go in the following sections of `./config/config.inc.php`:
-
-- `$_DVWA[ 'recaptcha_public_key' ]`
-- `$_DVWA[ 'recaptcha_private_key' ]`
-
-### Default Credentials
-
-**Default username = `admin`**
-
-**Default password = `password`**
-
-_...can easily be brute forced ;)_
-
-Login URL: <http://127.0.0.1/login.php>
-
-_Note: This will be different if you installed DVWA into a different directory._
-
-- - -
-
-## Troubleshooting
-
-These assume you are on a Debian based distro, such as Debian, Ubuntu and Kali. For other distros, follow along, but update the command where appropriate.
-
-If you'd rather watch a video than read words, the most common issues are covered in the video [Fixing DVWA Setup Issues](https://youtu.be/C-kig5qrPSA?si=_a4Bop505-1tXb_F).
-
-### Containers
-
-#### I want to access the logs
-
-If you are using Docker Desktop, logs can be accessed from the graphical application.
-Some minor details may change with newer versions, but the access method should be the same.
-
-![Overview of DVWA compose](./docs/graphics/docker/overview.png)
-![Viewing DVWA logs](docs/graphics/docker/detail.png)
+### License
+This file is part of Damn Vulnerable Web Application (DVWA). DVWA is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
 
 Logs can also be accessed from the terminal.
 
