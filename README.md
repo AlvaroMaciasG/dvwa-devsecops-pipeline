@@ -2,14 +2,14 @@
 
 **Context:** Academic DVWA fork demonstrating selected PHP vulnerability mitigations and GitHub Actions security scanning with Gitleaks, Semgrep, Dependency-Check, Trivy, and OWASP ZAP. 
 
-**Status:** 🚧 Work in Progress (WIP) - Active Technical Debt documented below.
+**Status:**  Work in Progress (WIP) - Active Technical Debt documented below.
 
-## 🛠️ Current Implementation
+##  Current Implementation
 * **CI/CD Pipeline:** Automated workflow triggering on push/pull requests.
 * **Security Scanners:** Gitleaks (Secrets), Semgrep (SAST), OWASP Dependency-Check (SCA), Trivy (Container/IaC), OWASP ZAP (DAST).
 * **Code Modifications:** Tactical PHP mitigations applied to specific vulnerability modules (e.g., `escapeshellcmd()` for Command Injection).
 
-## ⚠️ Known Issues & Pending Resolutions (Technical Debt)
+##  Known Issues & Pending Resolutions (Technical Debt)
 
 ### 1. Pipeline is Non-Blocking (Audit Only)
 * **Current State:** The pipeline does not act as a deployment barrier. Trivy uses `exit-code: 0` and ZAP uses `fail_action: false`. The workflow lacks a final deployment stage.
