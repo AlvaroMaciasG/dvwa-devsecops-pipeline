@@ -1,31 +1,37 @@
-# Damn Vulnerable Web Application (DevSecOps & Mitigation Fork)
+# DVWA: DevSecOps CI/CD & PHP Mitigation Lab
 
-> **⚠️ ACADEMIC PROJECT NOTICE:** This repository is a fork of the original DVWA. It was explicitly created as part of a final academic project (TFG) to demonstrate **secure code refactoring** and the implementation of a **DevSecOps CI/CD pipeline**.
-> 
-> The original vulnerable code has been patched, and automated security controls have been added to prevent deployment if vulnerabilities are found.
+**Context:** Academic DVWA fork demonstrating selected PHP vulnerability mitigations and GitHub Actions security scanning with Gitleaks, Semgrep, Dependency-Check, Trivy, and OWASP ZAP. 
 
-## 🛡️ Key Implementations (What was changed in this fork)
+**Status:** 🚧 Work in Progress (WIP) - Active Technical Debt documented below.
 
-As detailed in my comprehensive SecOps Infrastructure Lab project, the following improvements were implemented to secure this application:
+## 🛠️ Current Implementation
+* **CI/CD Pipeline:** Automated workflow triggering on push/pull requests.
+* **Security Scanners:** Gitleaks (Secrets), Semgrep (SAST), OWASP Dependency-Check (SCA), Trivy (Container/IaC), OWASP ZAP (DAST).
+* **Code Modifications:** Tactical PHP mitigations applied to specific vulnerability modules (e.g., `escapeshellcmd()` for Command Injection).
 
-### 1. Automated DevSecOps Pipeline (GitHub Actions)
-A strict CI/CD workflow (`pipeline-seguridad.yml`) was configured to enforce security checks before any deployment:
-- **Secret Detection:** Scans for hardcoded credentials using Gitleaks.
-- **Static Application Security Testing (SAST):** Automated PHP code analysis using Semgrep to catch injection flaws.
-- **Software Composition Analysis (SCA):** Scans infrastructure and dependencies using Trivy and OWASP Dependency-Check.
-- **Dynamic Application Security Testing (DAST):** Automated runtime evaluation using OWASP ZAP.
+## ⚠️ Known Issues & Pending Resolutions (Technical Debt)
 
-### 2. Vulnerability Mitigation & Code Refactoring
-The intentionally vulnerable PHP source code was refactored to eliminate critical security flaws:
-- **Command Injection:** Mitigated by implementing the `escapeshellcmd()` function to block the execution of special characters.
-- **SQL Injection (SQLi):** Fixed by enforcing strict data-type casting using the `intval()` function, preventing malicious payloads from bypassing database filters.
-- **Cross-Site Scripting (XSS):** Reflected and Stored XSS flaws were neutralized by encoding HTML output using `htmlspecialchars()`.
+### 1. Pipeline is Non-Blocking (Audit Only)
+* **Current State:** The pipeline does not act as a deployment barrier. Trivy uses `exit-code: 0` and ZAP uses `fail_action: false`. The workflow lacks a final deployment stage.
+* **Pending Solution:** Update workflow to enforce `exit-code: 1` on critical findings. Implement a conditional deployment job (e.g., pushing the image to a registry) that only executes if all security jobs pass successfully.
 
-### 3. Server-Side Hardening (HTTP Headers)
-The underlying web server configuration was updated to enforce security directives:
-- `X-Frame-Options: SAMEORIGIN` (Clickjacking prevention).
-- `X-Content-Type-Options: nosniff` (MIME-sniffing prevention).
-- `Content-Security-Policy` (Restricting resource loading to origin).
+### 2. DAST Target Mismatch
+* **Current State:** The GitHub Actions workflow and local `compose.yml` pull the upstream vulnerable image (`ghcr.io/digininja/dvwa:latest`) rather than building and testing the locally modified PHP code.
+* **Pending Solution:** Refactor the workflow and `docker-compose` configuration to `build: .` from the local source code prior to initiating the OWASP ZAP dynamic scan.
+
+### 3. Incomplete PHP Mitigations
+* **Current State:** 
+  * SQL Injection is mitigated using `intval()` which only protects numerical inputs, failing to address the root cause for string-based queries.
+  * Stored XSS mitigation (`htmlspecialchars()`) is only applied when the app is set to the 'impossible' level, leaving other levels completely unencoded.
+* **Pending Solution:** 
+  * Refactor all database queries to use **PDO (PHP Data Objects) with Prepared Statements**.
+  * Enforce strict output encoding (`htmlspecialchars` with `ENT_QUOTES`) globally across all security levels for user-supplied data.
+
+### 4. Insufficient Web Server Hardening
+* **Current State:** Security headers (CSP, X-Frame-Options) are missing from the main page generator. The application runs with `allow_url_include = on`, and the hardened `php.ini` is not being properly copied into the container via the Dockerfile.
+* **Pending Solution:** 
+  * Inject `Content-Security-Policy` and `X-Frame-Options: SAMEORIGIN` globally via Apache configuration or PHP headers.
+  * Correct the Dockerfile `COPY` directive to ensure the hardened `php.ini` overrides the default configuration, setting `allow_url_include = off`.
 
 ---
 *The text below is the original DVWA README for reference purposes.*
